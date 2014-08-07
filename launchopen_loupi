@@ -1,0 +1,47 @@
+ #!/bin/sh
+### BEGIN INIT INFO
+# Provides:          loupi
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop loupi server
+### END INIT INFO
+
+WORK_DIR="/home/das"
+NAME="loupi"
+JAR="loupi-1-standalone.jar"
+USER="das"
+DAEMON="/usr/bin/java"
+DAEMON_ARGS=" -jar $WORK_DIR/$JAR "
+
+#export LOUPI_TOKEN="<TOKEN>"
+
+start () {
+  echo "Starting loupi..."
+  if [ ! -f $WORK_DIR/loupi.pid ]; then
+    start-stop-daemon --start --verbose --background --chdir $WORK_DIR --exec $DAEMON --pidfile $WORK_DIR/loupi.pid --chuid "$USER" --make-pidfile -- $DAEMON_ARGS
+  else
+    echo "loupi is already running..."
+  fi
+}
+
+stop () {
+    echo "Stopping loupi..."
+    start-stop-daemon --stop --exec $DAEMON --pidfile $WORK_DIR/loupi.pid
+    rm $WORK_DIR/loupi.pid
+}
+
+case $1 in
+    start)
+        start
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        stop
+        start
+    ;;
+esac

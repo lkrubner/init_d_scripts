@@ -1,0 +1,47 @@
+ #!/bin/sh
+### BEGIN INIT INFO
+# Provides:          lo_login_service
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop lo_login_service server
+### END INIT INFO
+
+WORK_DIR="/home/das"
+NAME="lo_login_service"
+JAR="lo_login_service-0.2-standalone.jar"
+USER="das"
+DAEMON="/usr/bin/java"
+DAEMON_ARGS=" -jar $WORK_DIR/$JAR "
+
+#export LO_LOGIN_SERVICE_TOKEN="<TOKEN>"
+
+start () {
+  echo "Starting lo_login_service..."
+  if [ ! -f $WORK_DIR/lo_login_service.pid ]; then
+    start-stop-daemon --start --verbose --background --chdir $WORK_DIR --exec $DAEMON --pidfile $WORK_DIR/lo_login_service.pid --chuid "$USER" --make-pidfile -- $DAEMON_ARGS
+  else
+    echo "lo_login_service is already running..."
+  fi
+}
+
+stop () {
+    echo "Stopping lo_login_service..."
+    start-stop-daemon --stop --exec $DAEMON --pidfile $WORK_DIR/lo_login_service.pid
+    rm $WORK_DIR/lo_login_service.pid
+}
+
+case $1 in
+    start)
+        start
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        stop
+        start
+    ;;
+esac
